@@ -53,7 +53,9 @@ def main():
 
     if len(found_words) > 0:
         longest_words = sorted(found_words, key=len)[-1:-4:-1]  # Longest 3 Words
-        logging.info('Longest Words: {words}'.format(words=longest_words))
+        logging.info('Matches: {matches} - Longest Words: {words}'.format(matches=len(found_words), words=longest_words))
+    else:
+        logging.warning('No matches were found, did something go wrong?')
 
     # Post a Tweet
     hashtags = ['#libraryofbabel', '#babeldictionary']
@@ -63,7 +65,8 @@ def main():
                 first=longest_words[0], second=longest_words[1], third=longest_words[2], url=request.url,
                 hashtags=' '.join(hashtags))
 
-    # twitter_api.PostUpdate(status=tweet)
+    logging.info('Posting to Twitter')
+    twitter_api.PostUpdate(status=tweet)
 
 
 if __name__ == '__main__':
