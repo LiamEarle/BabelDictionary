@@ -1,0 +1,8 @@
+# IDE Configurations
+.idea/
+
+# Python Cache Files
+__pycache__/
+
+# Twitter API Secrets
+twitter_secrets.json
