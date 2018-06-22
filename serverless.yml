@@ -46,3 +46,7 @@ functions:
 
 plugins:
   - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true

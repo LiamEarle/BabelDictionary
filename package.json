@@ -1,22 +1,9 @@
 {
-  "name": "babeldictionary",
-  "version": "1.0.0",
-  "description": "#### What is BabelDictionary? BabelDictionary is a Python project that analyzes a random page of [The Library of Babel](https://libraryofbabel.info/) and checks for dictionary words. It then posts the three longest words to the Twitter account [@BabelDictionary](https://twitter.com/BabelDictionary)",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/LiamEarle/BabelDictionary.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/LiamEarle/BabelDictionary/issues"
-  },
-  "homepage": "https://github.com/LiamEarle/BabelDictionary#readme",
-  "dependencies": {
+  "name": "aws-python3",
+  "description": "",
+  "version": "0.1.0",
+  "dependencies": {},
+  "devDependencies": {
     "serverless-python-requirements": "^4.1.0"
   }
 }
