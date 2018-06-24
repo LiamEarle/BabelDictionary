@@ -75,7 +75,7 @@ def main():
     print(tweet)
 
     logging.info('Posting to Twitter')
-    #TwitterAPI.PostUpdate(status=tweet)
+    TwitterAPI.PostUpdate(status=tweet)
 
 
 if __name__ == '__main__':

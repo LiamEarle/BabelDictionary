@@ -42,11 +42,11 @@ functions:
   babeldict:
     handler: handler.run
     events:
-      - schedule: rate(1 hour)
+      - schedule: cron(0 * * * ? *)
 
 plugins:
   - serverless-python-requirements
 
 custom:
   pythonRequirements:
-    dockerizePip: true
+    dockerizePip: false
