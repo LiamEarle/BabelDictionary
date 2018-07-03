@@ -1,7 +1,8 @@
 import requests
-import re
 import twitter
 import logging
+import sys
+import watchtower
 
 from datetime import datetime
 from credentials import TwitterCredentials
@@ -9,6 +10,8 @@ from lxml import html
 
 # Logging Config
 logging.basicConfig(level=logging.INFO, format='[Babel Dictionary][%(levelname)s] %(asctime)s: %(message)s')
+logger = logging.getLogger(__name__)
+logger.addHandler(watchtower.CloudWatchLogHandler())
 
 
 def main():
@@ -17,26 +20,27 @@ def main():
     """
 
     # API Setup (Twitter)
-    logging.info('Initializing Twitter API')
+    logger.info('Initializing Twitter API')
     credentials = TwitterCredentials('./twitter_secrets.json')
-    TwitterAPI = twitter.Api(consumer_key=credentials.get_consumer_key(),
-                             consumer_secret=credentials.get_consumer_secret(),
-                             access_token_key=credentials.get_access_token_key(),
-                             access_token_secret=credentials.get_access_token_secret())
+    twitter_api = twitter.Api(consumer_key=credentials.get_consumer_key(),
+                              consumer_secret=credentials.get_consumer_secret(),
+                              access_token_key=credentials.get_access_token_key(),
+                              access_token_secret=credentials.get_access_token_secret())
 
     # Parse Dictionary
-    with open('./dictionary/words_alpha.txt') as file:
-        dictionary = set(file.read().split('\n'))
+    with open('./dictionary/words_alpha.txt', encoding='utf-8') as file:
+        dictionary = set(file.read().split())
 
     # Request Library of Babel Page & Parse
-    logging.info('Requesting Library of Babel Page')
-    request = requests.get('https://libraryofbabel.info/random.cgi?')
+    logger.info('Requesting Library of Babel Page')
+    request = None
 
-    if not request.ok:
-        logging.ERROR('The request could not be completed...')
-        raise requests.ConnectionError('The request could not be completed!')
+    try:
+        request = requests.get('https://libraryofbabel.info/random.cgi?', timeout=5)
+    except requests.exceptions.RequestException as error:
+        logger.error(error)
+        sys.exit(1)
 
-    logging.info('Request Success!')
     tree = html.fromstring(request.content)
 
     babel = {
@@ -44,21 +48,21 @@ def main():
         'text': tree.xpath('//pre[@id="textblock"]/text()')[0]
     }
 
-    found_words = []
+    found_words = set()
 
-    logging.info('Searching...')
+    logger.info('Searching...')
     search_start = datetime.now()
     for word in dictionary:
         if word in babel['text']:
-            found_words.append(word)
+            found_words.add(word)
 
     search_time = (datetime.now() - search_start).microseconds
     if len(found_words) > 0:
-        longest_words = sorted(found_words, key=len)[-1:-4:-1]  # Longest 3 Words
-        logging.info('Dictionary search took {}ms...'.format(search_time))
-        logging.info('Matches: {matches} - Longest Words: {words}'.format(matches=len(found_words), words=longest_words))
+        longest_words = sorted(found_words, key=len, reverse=True)[1:4]  # Longest 3 Words
+        logger.info('Dictionary search took {}ms...'.format(search_time))
+        logger.info('Matches: {matches} - Longest Words: {words}'.format(matches=len(found_words), words=longest_words))
     else:
-        logging.warning('No matches were found, did something go wrong?')
+        logger.warning('No matches were found, did something go wrong?')
 
     # Post a Tweet
     hashtags = ['#libraryofbabel', '#babeldictionary']
@@ -68,14 +72,11 @@ def main():
             "\U0001f948 {second_word}\n" \
             "\U0001f949 {third_word}\n\n" \
             "\U0001f517 {url} {hashtags}" \
-        .format(title=babel['title'], total_words=len(list(filter(lambda x: len(x) >= 3, found_words))),
-                first_word=longest_words[0], second_word=longest_words[1], third_word=longest_words[2], url=request.url,
-                hashtags=' '.join(hashtags))
+        .format(title=babel['title'], total_words=[x for x in found_words if len(x) >= 3], first_word=longest_words[0],
+                second_word=longest_words[1], third_word=longest_words[2], url=request.url, hashtags=' '.join(hashtags))
 
-    print(tweet)
-
-    logging.info('Posting to Twitter')
-    TwitterAPI.PostUpdate(status=tweet)
+    logger.info('Posting to Twitter')
+    twitter_api.PostUpdate(status=tweet)
 
 
 if __name__ == '__main__':
