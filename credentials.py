@@ -7,7 +7,8 @@ class TwitterCredentials(object):
         if not os.path.exists(path):
             raise ValueError('The specified path to credentials does not exist!')
 
-        self.credentials = dict(json.load(open(path, 'r')))
+        with open(path, encoding='utf-8') as file:
+            self.credentials = dict(json.load(file))
 
     def get_consumer_key(self):
         """
