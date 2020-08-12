@@ -1,5 +1,7 @@
 # BabelDictionary
 
+# This project is discontinued and is for archival purposes only!
+
 #### What is BabelDictionary?
 **BabelDictionary** is a Python project that analyzes a random page of [The Library of Babel](https://libraryofbabel.info/) and checks for dictionary words. It then posts the three longest words to the Twitter account [@BabelDictionary](https://twitter.com/BabelDictionary)
 
